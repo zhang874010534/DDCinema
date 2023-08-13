@@ -1,19 +1,9 @@
-const os = require('os');
-const ifaces = os.networkInterfaces();
-
-// 遍历网络接口信息，找到局域网 IP 地址
-let localIp = '';
-Object.keys(ifaces).forEach(iface => {
-  ifaces[iface].forEach(details => {
-    if (details.family === 'IPv4' && !details.internal) {
-      localIp = details.address;
-    }
-  });
-});
+import {getLocal} from './utils/util'
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   server: {
-    host: localIp
+    host: getLocal().ip,
+    port: getLocal().port
   },
   head: {
     title: 'DDCinema',
@@ -33,7 +23,8 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    'element-ui/lib/theme-chalk/index.css'
+    'element-ui/lib/theme-chalk/index.css',
+    '~/assets/main.css'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -63,5 +54,9 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: [/^element-ui/],
-  }
+  },
+  serverMiddleware: [
+    // API middleware
+    '~/server/index'
+  ],
 }
