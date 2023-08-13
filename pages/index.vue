@@ -19,7 +19,6 @@ export default {
   data () {
     return {
       mediaList: {},
-      baseUrl
     }
   },
   methods: {
@@ -55,6 +54,7 @@ video {
   border-radius: 20px;
   cursor: pointer;
   border: 1px solid transparent;
+  background-color: #000;
 }
 .video-text {
   text-align: center;

@@ -5,6 +5,8 @@
         controls
         ref="videoRef"
         autoplay
+        @touchstart="clickVideo"
+        @click="clickVideo"
     ></video>
   </div>
 </template>
@@ -13,36 +15,41 @@ export default {
   data () {
     return {
       url: '',
-      previousTime: 0
+      previousTime: ''
     }
   },
   mounted () {
     this.url = this.$route.query.url
-    const timeMap = localStorage.getItem('timeMap')
-    if (timeMap) {
-      try {
-        const timeObj = JSON.parse(timeMap)
-        const currentConfig = timeObj[this.url]
-        if (currentConfig) {
-          this.$refs.videoRef.currentTime = currentConfig.currentTime
-          this.$message({
-            message: '设置历史播放时间',
-            type: 'success'
-          });
-        }
-      }catch (e) {
-        localStorage.removeItem('timeMap')
-        this.initTimeMap()
-      }
-    } else {
-      this.initTimeMap()
-    }
     this.$refs.videoRef.addEventListener('timeupdate', this.timeUpdate)
   },
   beforeDestroy () {
     this.$refs.videoRef.removeEventListener('timeupdate', this.timeUpdate)
   },
   methods: {
+    clickVideo () {
+      if (this.previousTime) {
+        return
+      }
+      const timeMap = localStorage.getItem('timeMap')
+      if (timeMap) {
+        try {
+          const timeObj = JSON.parse(timeMap)
+          const currentConfig = timeObj[this.url]
+          if (currentConfig) {
+            this.$refs.videoRef.currentTime = currentConfig.currentTime
+            this.$message({
+              message: '设置历史播放时间',
+              type: 'success'
+            });
+          }
+        }catch (e) {
+          localStorage.removeItem('timeMap')
+          this.initTimeMap()
+        }
+      } else {
+        this.initTimeMap()
+      }
+    },
     timeUpdate () {
       const currentTime = this.$refs.videoRef.currentTime
       if (currentTime - this.previousTime > 10) {
@@ -50,7 +57,14 @@ export default {
         const timeMap = localStorage.getItem('timeMap')
         if (timeMap) {
           const timeObj = JSON.parse(timeMap)
-          timeObj[this.url].currentTime = currentTime
+          const currentConfig = timeObj[this.url]
+          if (currentConfig) {
+            currentConfig.currentTime = currentTime
+          } else {
+            timeObj[this.url] = {
+              currentTime
+            }
+          }
           this.previousTime = currentTime
           localStorage.setItem('timeMap', JSON.stringify(timeObj))
         }
@@ -74,5 +88,6 @@ export default {
 }
 video {
   width: 100%;
+  height: 100%;
 }
 </style>
